@@ -1,43 +1,53 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+# .github/workflows/deploy.yml
+name: Deploy Web App to GitHub Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
-    branches: ["main"]
+    branches:
+      - main # Trigger the workflow when changes are pushed to the 'main' branch
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Sets permissions for the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Allow only one concurrent deployment
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  # Single deploy job since we're just deploying
+  # Job to build and deploy the project
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
+
+      # --- Build Step (Optional but good practice) ---
+      # If you had a build process (e.g., Node.js for bundling or compiling), 
+      # you'd run it here. For a simple static/PHP site, we just copy files.
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Upload artifact
+
+      # The build artifact is the content that will be deployed.
+      # For a simple site, the source files *are* the build artifact.
+      # The `upload-pages-artifact` action looks in the root directory by default.
+      - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          # This specifies the directory containing your static files.
+          # For your project, it's the root directory.
+          path: './'
+
+      # --- Deployment Step ---
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
